@@ -20,12 +20,12 @@ migrate:
 superuser:
 	poetry run python manage.py createsuperuser
 
-runserver:
+run-server:
 	poetry run gunicorn api.wsgi:application -k gevent --bind :8000 --reload
 
-runcelery:
+run-celery:
 	poetry run celery -A api.celery purge --force
-	poetry run celery -A api.celery worker -P gevent -c 10
+	poetry run celery -A api.celery worker -Q p0,p1,p2,celery -P gevent -c 10
 
 run-infra:
 	docker compose -f docker-compose.local.yaml up -d
