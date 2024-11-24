@@ -16,7 +16,8 @@ A few reasons!
 2. It's a batteries-included API framework, built on one of the best ORMs out there
 3. Has a large community behind it and is very stable
 
-I believe it was Sun Tzu who said in their critically aclaimed book, 'Art of War' that "API frameworks should be boring so that you can build cool things with them easily"
+I believe Sun Tzu said this about API frameworks their critically aclaimed book, 'The Art of War':
+> API frameworks should be boring so that you can build cool things with them easily
 
 ## Infrastructure Setup
 
