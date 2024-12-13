@@ -15,7 +15,6 @@ DATABASES = {
         dj_database_url.config(env="DATABASE_URL")
         | {
             "ATOMIC_REQUESTS": True,
-            "OPTIONS": {"pool": {"min_size": 2, "max_size": 10, "max_idle": 5}},
         }
     ),
 }

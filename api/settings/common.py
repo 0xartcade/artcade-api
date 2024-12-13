@@ -7,6 +7,8 @@ import environ
 import structlog
 from corsheaders.defaults import default_headers
 
+# from redis import ConnectionPool
+
 logger = structlog.getLogger(__name__)
 
 DEBUG = False
@@ -17,7 +19,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 # Load Environment Variables
 env = environ.Env()
-environ.Env.read_env(BASE_DIR / ".env")
+env.read_env(BASE_DIR / ".env")
+
 ENV_NAME = os.getenv("DJANGO_SETTINGS_MODULE").split(".")[-1]  # e.g. local, dev, prod
 
 # Environment secrets
@@ -27,6 +30,13 @@ ALLOWED_HOSTS = env.list("ALLOWED_HOSTS")
 # Hardcoded settings
 NONCE_LENGTH = 16
 NONCE_EXPIRATION = timedelta(minutes=15)
+APP_CHAIN_ID = 11011
+
+# Know Your Memes
+KYM_GAME_ADDRESS = ""
+KYM_GAME_DURATION = timedelta(seconds=30)
+KYM_MAX_QUESTIONS = 5
+KYM_QUESTION_DATA_URL = env("KYM_QUESTION_DATA_URL")
 
 # Application definition
 INSTALLED_APPS = [
@@ -42,15 +52,22 @@ INSTALLED_APPS = [
     "corsheaders",
     "drf_spectacular",
     "drf_standardized_errors",
-    "django_celery_results",
     "rest_framework",
     "rest_framework.authtoken",
+    "knox",
     "django_structlog",
+    # "huey.contrib.djhuey",
     # our apps
+    "users",
+    "games",
+    "webhooks",
+    "know_your_memes",
 ]
 
+# custom user model
+AUTH_USER_MODEL = "users.User"
+
 MIDDLEWARE = [
-    "api.middleware.HealthCheckMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
@@ -133,14 +150,7 @@ STORAGES = {
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# CORS
-# https://github.com/adamchainz/django-cors-headers
-CORS_ALLOWED_ORIGINS = []
-CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOW_HEADERS = (*default_headers,)
-
-# Logging for dev/production/etc. Overriden in Local
-DJANGO_STRUCTLOG_CELERY_ENABLED = True
+# Logging for dev/production/etc. Overriden in local, testing
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -193,7 +203,7 @@ structlog.configure(
 # https://www.django-rest-framework.org/api-guide/settings/
 REST_FRAMEWORK = {
     # https://www.django-rest-framework.org/api-guide/authentication/
-    "DEFAULT_AUTHENTICATION_CLASSES": [],
+    "DEFAULT_AUTHENTICATION_CLASSES": ["api.authentication.TokenAuthentication"],
     "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.IsAuthenticated"],
     # https://www.django-rest-framework.org/api-guide/pagination/
     "DEFAULT_PAGINATION_CLASS": "api.pagination.ApiPagination",
@@ -205,12 +215,46 @@ REST_FRAMEWORK = {
     "EXCEPTION_HANDLER": "drf_standardized_errors.handler.exception_handler",
 }
 
+# Knox
+# https://django-knox.readthedocs.io/en/latest/settings.html
+REST_KNOX = {
+    "USER_SERIALIZER": "users.serializers.UserSerializer",
+    "TOKEN_TTL": timedelta(days=7),
+    "AUTO_REFRESH": True,
+    "AUTO_REFRESH_TTL": timedelta(days=7),  # refresh if login within 7 days
+}
+AUTH_COOKIE_NAME = "artcade_auth_cookie"
+
+# CSRF
+CSRF_COOKIE_SAMESITE = "None"
+CSRF_COOKIE_SECURE = True
+CSRF_HEADER_KEY = "X-CSRFToken"
+CSRF_RET_HEADER_NAME = "X-CSRF-TOKEN"
+
+# CORS
+# https://github.com/adamchainz/django-cors-headers
+CORS_ALLOWED_ORIGINS = []
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_HEADERS = (*default_headers, CSRF_RET_HEADER_NAME)
+CORS_EXPOSE_HEADERS = [CSRF_RET_HEADER_NAME]
+
 
 # https://drf-standardized-errors.readthedocs.io/en/latest/settings.html
 DRF_STANDARDIZED_ERRORS = {
     "EXCEPTION_FORMATTER_CLASS": "utils.rest_framework.formatters.FilteredExceptionFormatter",
     "ENABLE_IN_DEBUG_FOR_UNHANDLED_EXCEPTIONS": True,
-    "ALLOWED_ERROR_STATUS_CODES": ["400"],
+    "ALLOWED_ERROR_STATUS_CODES": [
+        "400",  # Bad Request
+        "401",  # Unauthorized
+        "403",  # Forbidden
+        "404",  # Not Found
+        "405",  # Method Not Allowed
+        "406",  # Not Acceptable
+        "409",  # Conflict
+        "415",  # Unsupported Media Type
+        "429",  # Too Many Requests
+        "500",  # Internal Server Error
+    ],
 }
 
 # https://drf-spectacular.readthedocs.io/en/latest/settings.html
@@ -238,13 +282,3 @@ SPECTACULAR_SETTINGS = {
         "ErrorCode500Enum": "drf_standardized_errors.openapi_serializers.ErrorCode500Enum.choices",
     },
 }
-
-# Celery
-# Most settings are defined in celery.py
-# https://docs.celeryq.dev/en/stable/userguide/configuration.html
-CELERY_BROKER_URL = env("CELERY_BROKER_URL", default="redis://localhost:6380")
-CELERY_RESULT_BACKEND = "django-db"
-
-# Git commit from build job
-GIT_COMMIT = (BASE_DIR / "version.txt").read_text().replace("\n", "").strip()
-GIT_COMMIT = None if GIT_COMMIT.startswith("#") else GIT_COMMIT
