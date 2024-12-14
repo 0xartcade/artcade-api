@@ -9,7 +9,7 @@ class GameAdmin(admin.ModelAdmin):
     readonly_fields = ("created_at", "updated_at")
     fieldsets = (
         (None, {"fields": ("name", "description", "url")}),
-        ("Web3", {"fields": ("eth_address", "nft_address")}),
+        ("Web3", {"fields": ("eth_address", "nft_address", "signing_key")}),
         (
             "Metadata",
             {"fields": readonly_fields},
