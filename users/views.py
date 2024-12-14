@@ -129,6 +129,7 @@ class LoginView(KnoxLoginView):
             secure=True,
             samesite="None",
             domain=".0xartcade.xyz",
+            expires=response.data["expiry"],
         )
 
         # return response
