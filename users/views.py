@@ -164,3 +164,12 @@ class GenerateTokenView(KnoxLoginView):
     )
     def post(self, request, format=None):
         return super().post(request, format=format)
+
+
+class UserInfoView(APIView):
+    @extend_schema(responses={200: UserSerializer})
+    def get(self, request):
+        """Endpoint to get user info, if they are logged in"""
+        return Response(
+            data=UserSerializer(request.user).data, status=status.HTTP_200_OK
+        )

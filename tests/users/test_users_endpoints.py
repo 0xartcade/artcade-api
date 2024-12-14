@@ -269,3 +269,16 @@ def test_generate_token_cookie_csrf_mistmatch(api_client):
 def test_generate_token_not_logged_in(api_client):
     generate_token_response = api_client.post("/auth/generate-token")
     assert generate_token_response.status_code == status.HTTP_401_UNAUTHORIZED
+
+
+def test_get_user_info_not_logged_in(api_client):
+    r = api_client.get("/auth/user-info")
+    assert r.status_code == status.HTTP_401_UNAUTHORIZED
+
+
+def test_get_user_info_logged_in(auth_client):
+    r = auth_client.get("/auth/user-info")
+    assert (
+        r.status_code == status.HTTP_200_OK
+        and r.data["eth_address"] == auth_client.eth_address
+    )
