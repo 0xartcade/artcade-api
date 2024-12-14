@@ -24,6 +24,14 @@ CORS_ALLOWED_ORIGIN_REGEXES = [
     re.compile(r"^https://([\w-]+)-artcade.vercel\.app$"),
 ]
 
+# CSRF
+CSRF_TRUSTED_ORIGINS = [
+    "https://*.0xartcade.xyz",
+    "https://*.vercel.app",
+    *[f"http://localhost:{port}" for port in range(3000, 3010)],
+    *[f"http://localhost.local:{port}" for port in range(3000, 3010)],
+]
+
 # Allow django to detect if request was made via https.
 # this header is set by the Elastic Load Balancer
 SECURE_SSL_REDIRECT = True

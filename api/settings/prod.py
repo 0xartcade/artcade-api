@@ -26,6 +26,11 @@ CORS_ALLOWED_ORIGIN_REGEXES = [
     re.compile(r"^https://([\w-]+\.)?artcade\.xyz$"),
 ]
 
+# CSRF
+CSRF_TRUSTED_ORIGINS = [
+    "https://*.0xartcade.xyz",
+]
+
 # Allow django to detect if request was made via https.
 # this header is set by the Elastic Load Balancer
 SECURE_SSL_REDIRECT = True
@@ -38,3 +43,6 @@ APP_CHAIN_ID = 360
 KYM_GAME_ADDRESS = ""
 KYM_GAME_DURATION = timedelta(seconds=30)  # noqa
 KYM_MAX_QUESTIONS = 5
+
+# AUTH
+AUTH_COOKIE_NAME = "artcade_auth_cookie"

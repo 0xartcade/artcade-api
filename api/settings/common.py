@@ -224,12 +224,13 @@ REST_KNOX = {
     "AUTO_REFRESH": True,
     "AUTO_REFRESH_TTL": timedelta(days=7),  # refresh if login within 7 days
 }
-AUTH_COOKIE_NAME = "artcade_auth_cookie"
+AUTH_COOKIE_NAME = "artcade_auth_cookie_dev"
 
 # CSRF
+CSRF_TRUSTED_ORIGINS = []  # overwrite in specific envs
 CSRF_COOKIE_SAMESITE = "None"
 CSRF_COOKIE_SECURE = True
-CSRF_COOKIE_DOMAIN = ".artcade.xyz"
+CSRF_COOKIE_DOMAIN = ".0xartcade.xyz"
 CSRF_HEADER_KEY = "X-CSRFToken"
 CSRF_RET_HEADER_NAME = "X-CSRF-TOKEN"
 
