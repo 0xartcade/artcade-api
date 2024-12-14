@@ -170,6 +170,11 @@ class UserInfoView(APIView):
     @extend_schema(responses={200: UserSerializer})
     def get(self, request):
         """Endpoint to get user info, if they are logged in"""
-        return Response(
+        response = Response(
             data=UserSerializer(request.user).data, status=status.HTTP_200_OK
         )
+
+        # add csrf token to the response as a custom header
+        response.headers[settings.CSRF_RET_HEADER_NAME] = csrf.get_token(request)
+
+        return response

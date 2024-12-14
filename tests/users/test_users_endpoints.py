@@ -281,4 +281,5 @@ def test_get_user_info_logged_in(auth_client):
     assert (
         r.status_code == status.HTTP_200_OK
         and r.data["eth_address"] == auth_client.eth_address
+        and len(r.headers[settings.CSRF_RET_HEADER_NAME]) > 0
     )
