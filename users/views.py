@@ -128,6 +128,7 @@ class LoginView(KnoxLoginView):
             httponly=True,
             secure=True,
             samesite="None",
+            domain=".artcade.xyz",
         )
 
         # return response
