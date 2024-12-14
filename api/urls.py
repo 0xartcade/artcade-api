@@ -31,7 +31,13 @@ from games.views import (
     SignScoresView,
 )
 from know_your_memes.views import GameplayViewset, QuestionViewSet
-from users.views import GenerateTokenView, LoginView, NonceView, UserInfoView
+from users.views import (
+    GenerateOTPView,
+    LoginView,
+    NonceView,
+    OTPLoginView,
+    UserInfoView,
+)
 
 from . import views as api_views
 
@@ -54,7 +60,8 @@ urlpatterns = [
     #
     path("auth/nonce", NonceView.as_view()),
     path("auth/login", LoginView.as_view()),
-    path("auth/generate-token", GenerateTokenView.as_view()),
+    path("auth/generate-otp", GenerateOTPView.as_view()),
+    path("auth/login/otp", OTPLoginView.as_view()),
     path("auth/logout", LogoutView.as_view()),
     path("auth/logout-all", LogoutAllView.as_view()),
     path("auth/user-info", UserInfoView.as_view()),

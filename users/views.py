@@ -1,3 +1,4 @@
+from datetime import timedelta
 from secrets import token_hex
 
 from django.conf import settings
@@ -12,8 +13,14 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from siwe import SiweMessage
 
-from users.models import Nonce
-from users.serializers import LoginSerializer, NonceSerializer, UserSerializer
+from users.models import OTP, Nonce
+from users.serializers import (
+    LoginSerializer,
+    NonceSerializer,
+    OTPLoginSerializer,
+    OTPSerializer,
+    UserSerializer,
+)
 
 User = get_user_model()
 
@@ -65,6 +72,7 @@ class LoginView(KnoxLoginView):
         },
     )
     def post(self, request, format=None):
+        """Endpoint to login via SIWE"""
         # serializer data
         serializer = LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -129,19 +137,41 @@ class LoginView(KnoxLoginView):
             secure=True,
             samesite="None",
             domain=".0xartcade.xyz",
-            expires=response.data["expiry"],
+            expires=response.data["expiry"],  # TODO: figure this out later
         )
 
         # return response
         return response
 
 
-class GenerateTokenView(KnoxLoginView):
+class GenerateOTPView(APIView):
     """
-    Default login view from knox gives us all the functionality we need to generate another token for the user
+    Generate a OTP token for a user to use to link their mobile device for gameplay
     """
 
     @extend_schema(
+        responses={200: OTPSerializer},
+    )
+    def post(self, request, format=None):
+        # generate otp for user
+        otp = OTP.objects.create(
+            user=request.user,
+            code=token_hex(3),
+            expires_at=now() + timedelta(minutes=5),
+        )
+
+        # return response
+        return Response(data=OTPSerializer(otp).data)
+
+
+class OTPLoginView(KnoxLoginView):
+    """Endpoint to login via OTP"""
+
+    authentication_classes = []
+    permission_classes = [AllowAny]
+
+    @extend_schema(
+        request=OTPLoginSerializer,
         responses={
             200: {
                 "type": "object",
@@ -161,11 +191,59 @@ class GenerateTokenView(KnoxLoginView):
                         },
                     },
                 },
-            },
+            }
         },
     )
     def post(self, request, format=None):
-        return super().post(request, format=format)
+        # get serializer data
+        serializer = OTPLoginSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        # get the otp
+        try:
+            otp = OTP.objects.get(code=serializer.validated_data["code"])
+            if now() > otp.expires_at:
+                return Response(
+                    data={
+                        "detail": "OTP expired, please try again",
+                        "code": "otp_expired",
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+        except OTP.DoesNotExist:
+            return Response(
+                data={"detail": "Invalid OTP", "code": "otp_invalid"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # login the user
+        login(request, otp.user)
+
+        # delete the otp
+        otp.delete()
+
+        # get csrf token
+        csrf.rotate_token(request)
+
+        # get response
+        response = super().post(request, format=format)
+
+        # add csrf token to the response as a custom header
+        response.headers[settings.CSRF_RET_HEADER_NAME] = request.META["CSRF_COOKIE"]
+
+        # add authentication credentials to the response as cookie
+        response.set_cookie(
+            key=settings.AUTH_COOKIE_NAME,
+            value=response.data["token"],
+            httponly=True,
+            secure=True,
+            samesite="None",
+            domain=".0xartcade.xyz",
+            expires=response.data["expiry"],  # TODO: figure this out later
+        )
+
+        # return response
+        return response
 
 
 class UserInfoView(APIView):

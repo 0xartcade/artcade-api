@@ -85,7 +85,7 @@ class SignScoresView(APIView):
         responses={200: OpenApiResponse(SignedScoreSerializer(many=True))},
     )
     def post(self, request):
-        """Action to sign scores desired by the player"""
+        """Endpoint to sign scores desired by the player"""
 
         # serialize data
         serializer = SignScoreSerializer(data=request.data)
