@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Game, PlayerHighScore
+from .models import Game, PlayerHighScore, PlayerScore
 
 
 class GameAdmin(admin.ModelAdmin):
@@ -58,3 +58,4 @@ class PlayerScoreAdmin(admin.ModelAdmin):
 
 admin.site.register(Game, GameAdmin)
 admin.site.register(PlayerHighScore, PlayerHighScoreAdmin)
+admin.site.register(PlayerScore, PlayerScoreAdmin)
