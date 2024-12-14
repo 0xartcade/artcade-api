@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import UserChangeForm, UserCreationForm
 
-from .models import Nonce, User
+from .models import OTP, Nonce, User
 
 
 class CustomUserAdmin(UserAdmin):
@@ -56,5 +56,10 @@ class NonceAdmin(admin.ModelAdmin):
     list_display = ("value", "expires_at")
 
 
+class OTPAdmin(admin.ModelAdmin):
+    list_display = ("user__username", "code", "expires_at")
+
+
 admin.site.register(User, CustomUserAdmin)
 admin.site.register(Nonce, NonceAdmin)
+admin.site.register(OTP, OTPAdmin)
