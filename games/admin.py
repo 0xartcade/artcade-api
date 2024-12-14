@@ -32,5 +32,29 @@ class PlayerHighScoreAdmin(admin.ModelAdmin):
     )
 
 
+class PlayerScoreAdmin(admin.ModelAdmin):
+    list_display = ("id", "user__username", "game__name", "score")
+    list_filter = ("game__name",)
+    sortable_by = ("score",)
+    search_fields = ("user__username", "game__name")
+    readonly_fields = ("created_at", "updated_at")
+    fieldsets = (
+        (
+            None,
+            {
+                "fields": (
+                    "user",
+                    "game",
+                    "score",
+                )
+            },
+        ),
+        (
+            "Metadata",
+            {"fields": readonly_fields},
+        ),
+    )
+
+
 admin.site.register(Game, GameAdmin)
 admin.site.register(PlayerHighScore, PlayerHighScoreAdmin)
