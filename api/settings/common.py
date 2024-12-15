@@ -33,7 +33,7 @@ NONCE_EXPIRATION = timedelta(minutes=15)
 APP_CHAIN_ID = 11011
 TICKET_NAME = "Reward Ticket"
 TICKET_DESCRIPTION = "A little reward for your participation and performance in the 0xArcade. Stuff your pockets with enough of these and you might just unlock some epic rewards. 👀"
-TICKET_IMAGE_URL = "https://arweave.net/p0-oGFakBvMvOvwjPTz4ZaAbavOMW-VLJnNIHbWZ9uk"
+TICKET_IMAGE_URL = "https://arweave.net/EAaB6gq782CAk4IO_Jm9jKcDI1qB6b9cGm90aI_Ij7g"
 
 # Know Your Memes
 KYM_GAME_ADDRESS = ""
