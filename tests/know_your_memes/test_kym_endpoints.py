@@ -2,14 +2,17 @@ from datetime import timedelta
 
 import pytest
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.utils.timezone import now
 from freezegun import freeze_time
 
 from know_your_memes.models import Gameplay, Question
 from know_your_memes.questions import QUESTIONS
-from tests.factories import GameFactory
+from tests.factories import GameFactory, PlayerHighScoreFactory
 
 pytestmark = [pytest.mark.django_db(transaction=True)]
+
+User = get_user_model()
 
 
 def test_create_gameplay(auth_client):
@@ -127,4 +130,64 @@ def test_submit_gameplay(wait_time, expected_score, auth_client):
         r.status_code == 200
         and abs(r.data["total_score"] - expected_score) < 10
         and len(r.data["questions"]) == 5
+    )
+
+
+def test_kym_metadata(api_client):
+    # test a token that doesn't exist
+    response = api_client.get("/kym/metadata/420")
+    assert response.status_code == 404
+
+    # create 4 high scores
+    game = GameFactory(eth_address=settings.KYM_GAME_ADDRESS)
+    scores = PlayerHighScoreFactory.create_batch(4, game=game)
+
+    sorted_scores = sorted(scores, key=lambda x: x.score, reverse=True)
+
+    # test first place
+    response = api_client.get(f"/kym/metadata/{sorted_scores[0].token_id}")
+    assert (
+        response.status_code == 200
+        and response.data["name"]
+        == f"{settings.KYM_NFT_NAME_PREFIX} #{sorted_scores[0].token_id}"
+        and response.data["description"] == settings.KYM_NFT_DESCRIPTION
+        and response.data["image"] == settings.KYM_NFT_1ST_IMAGE_URL
+        and response.data["attributes"][0]["trait_type"] == "Score"
+        and response.data["attributes"][0]["value"] == str(sorted_scores[0].score)
+    )
+
+    # test second place
+    response = api_client.get(f"/kym/metadata/{sorted_scores[1].token_id}")
+    assert (
+        response.status_code == 200
+        and response.data["name"]
+        == f"{settings.KYM_NFT_NAME_PREFIX} #{sorted_scores[1].token_id}"
+        and response.data["description"] == settings.KYM_NFT_DESCRIPTION
+        and response.data["image"] == settings.KYM_NFT_2ND_IMAGE_URL
+        and response.data["attributes"][0]["trait_type"] == "Score"
+        and response.data["attributes"][0]["value"] == str(sorted_scores[1].score)
+    )
+
+    # test third place
+    response = api_client.get(f"/kym/metadata/{sorted_scores[2].token_id}")
+    assert (
+        response.status_code == 200
+        and response.data["name"]
+        == f"{settings.KYM_NFT_NAME_PREFIX} #{sorted_scores[2].token_id}"
+        and response.data["description"] == settings.KYM_NFT_DESCRIPTION
+        and response.data["image"] == settings.KYM_NFT_3RD_IMAGE_URL
+        and response.data["attributes"][0]["trait_type"] == "Score"
+        and response.data["attributes"][0]["value"] == str(sorted_scores[2].score)
+    )
+
+    # test fourth place
+    response = api_client.get(f"/kym/metadata/{sorted_scores[3].token_id}")
+    assert (
+        response.status_code == 200
+        and response.data["name"]
+        == f"{settings.KYM_NFT_NAME_PREFIX} #{sorted_scores[3].token_id}"
+        and response.data["description"] == settings.KYM_NFT_DESCRIPTION
+        and response.data["image"] == settings.KYM_NFT_BASE_IMAGE_URL
+        and response.data["attributes"][0]["trait_type"] == "Score"
+        and response.data["attributes"][0]["value"] == str(sorted_scores[3].score)
     )

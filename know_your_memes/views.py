@@ -4,10 +4,12 @@ from django.conf import settings
 from django.http import Http404
 from drf_spectacular.utils import extend_schema
 from rest_framework.exceptions import ValidationError
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework.viewsets import ViewSet
 
-from games.models import Game, PlayerScore
+from games.models import Game, PlayerHighScore, PlayerScore
 from know_your_memes.models import Gameplay, Question
 from know_your_memes.questions import ARTISTS, QUESTIONS, SEASONS, SUPPLIES, TITLES
 from know_your_memes.serializers import (
@@ -17,6 +19,7 @@ from know_your_memes.serializers import (
     RevealedQuestionSerializer,
     SubmitAnswerSerializer,
 )
+from utils.rest_framework.serializers import MetadataSerializer
 
 
 class GameplayViewset(ViewSet):
@@ -173,3 +176,56 @@ class QuestionViewSet(ViewSet):
 
         # return the question
         return Response(data=RevealedQuestionSerializer(question).data)
+
+
+class KYMTrophyMetadataView(APIView):
+    """View to get the KYM trophy metadata, publically available"""
+
+    authentication_classes = []
+    permission_classes = [AllowAny]
+
+    @extend_schema(
+        responses={200: MetadataSerializer},
+    )
+    def get(self, request, token_id: int):
+        # create base metadata
+        metadata = {
+            "name": f"{settings.KYM_NFT_NAME_PREFIX} #{token_id}",
+            "description": settings.KYM_NFT_DESCRIPTION,
+            "image": settings.KYM_NFT_BASE_IMAGE_URL,
+            "attributes": [],
+        }
+
+        # get high score for this token id
+        try:
+            phs = PlayerHighScore.objects.get(
+                game__eth_address__iexact=settings.KYM_GAME_ADDRESS,
+                token_id=token_id,
+            )
+            metadata["attributes"].append(
+                {
+                    "trait_type": "Score",
+                    "value": phs.score,
+                }
+            )
+        except PlayerHighScore.DoesNotExist:
+            raise Http404()
+
+        # get the top three high scores
+        top_three = PlayerHighScore.objects.filter(
+            game__eth_address__iexact=settings.KYM_GAME_ADDRESS
+        ).order_by("-score")[:3]
+
+        top_three_ids = [phs.token_id for phs in top_three]
+
+        # if the token is the first token, change image url
+        if top_three_ids[0] == token_id:
+            metadata["image"] = settings.KYM_NFT_1ST_IMAGE_URL
+        elif top_three_ids[1] == token_id:
+            metadata["image"] = settings.KYM_NFT_2ND_IMAGE_URL
+        elif top_three_ids[2] == token_id:
+            metadata["image"] = settings.KYM_NFT_3RD_IMAGE_URL
+
+        serializer = MetadataSerializer(data=metadata)
+        serializer.is_valid()
+        return Response(data=serializer.data)

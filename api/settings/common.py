@@ -31,12 +31,21 @@ ALLOWED_HOSTS = env.list("ALLOWED_HOSTS")
 NONCE_LENGTH = 16
 NONCE_EXPIRATION = timedelta(minutes=15)
 APP_CHAIN_ID = 11011
+TICKET_NAME = "Reward Ticket"
+TICKET_DESCRIPTION = "A little reward for your participation and performance in the 0xArcade. Stuff your pockets with enough of these and you might just unlock some epic rewards. 👀"
+TICKET_IMAGE_URL = "https://arweave.net/p0-oGFakBvMvOvwjPTz4ZaAbavOMW-VLJnNIHbWZ9uk"
 
 # Know Your Memes
 KYM_GAME_ADDRESS = ""
 KYM_GAME_DURATION = timedelta(seconds=30)
 KYM_MAX_QUESTIONS = 5
 KYM_QUESTION_DATA_URL = env("KYM_QUESTION_DATA_URL")
+KYM_NFT_NAME_PREFIX = "Know Your Memes Trophy"
+KYM_NFT_DESCRIPTION = "A little momento for your performance in Know Your Memes. Submit more scores on-chain to climb the leaderboard and continue to earn rewards."
+KYM_NFT_BASE_IMAGE_URL = "https://google.com"
+KYM_NFT_1ST_IMAGE_URL = "https://google.com"
+KYM_NFT_2ND_IMAGE_URL = "https://google.com"
+KYM_NFT_3RD_IMAGE_URL = "https://google.com"
 
 # Application definition
 INSTALLED_APPS = [

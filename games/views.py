@@ -1,5 +1,6 @@
 from hashlib import sha256
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.http import Http404
 from drf_spectacular.utils import OpenApiResponse, extend_schema
@@ -21,6 +22,7 @@ from games.serializers import (
     SignedScoreSerializer,
     SignScoreSerializer,
 )
+from utils.rest_framework.serializers import MetadataSerializer
 
 User = get_user_model()
 
@@ -126,3 +128,24 @@ class SignScoresView(APIView):
         ret_serializer = SignedScoreSerializer(data=score_data, many=True)
         ret_serializer.is_valid()
         return Response(data=ret_serializer.data)
+
+
+class TicketMetadataView(APIView):
+    """View to get ticket metadata for the ticket NFT, publically available"""
+
+    authentication_classes = []
+    permission_classes = [AllowAny]
+
+    @extend_schema(
+        responses={200: OpenApiResponse(MetadataSerializer)},
+    )
+    def get(self, request):
+        metadata = {
+            "name": settings.TICKET_NAME,
+            "description": settings.TICKET_DESCRIPTION,
+            "image": settings.TICKET_IMAGE_URL,
+        }
+
+        serializer = MetadataSerializer(data=metadata)
+        serializer.is_valid()
+        return Response(data=serializer.data)

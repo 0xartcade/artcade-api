@@ -29,8 +29,9 @@ from games.views import (
     PlayerHighScoreViewSet,
     PlayerScoreViewSet,
     SignScoresView,
+    TicketMetadataView,
 )
-from know_your_memes.views import GameplayViewset, QuestionViewSet
+from know_your_memes import views as kym_views
 from users.views import (
     GenerateOTPView,
     LoginView,
@@ -71,6 +72,10 @@ urlpatterns = [
     path("games", GameViewSet.as_view({"get": "list"})),
     path("games/<int:pk>", GameViewSet.as_view({"get": "retrieve"})),
     #
+    # Ticket Metadata
+    #
+    path("ticket/metadata", TicketMetadataView.as_view()),
+    #
     # Leaderboard
     #
     path("leaderboard/<int:game_id>", LeaderboardViewSet.as_view({"get": "list"})),
@@ -90,17 +95,20 @@ urlpatterns = [
     #
     # Know Your Memes
     #
-    path("kym/gameplay", GameplayViewset.as_view({"post": "create_gameplay"})),
+    path(
+        "kym/gameplay", kym_views.GameplayViewset.as_view({"post": "create_gameplay"})
+    ),
     path(
         "kym/gameplay/<int:gameplay_id>/question",
-        GameplayViewset.as_view({"post": "create_question"}),
+        kym_views.GameplayViewset.as_view({"post": "create_question"}),
     ),
     path(
         "kym/gameplay/<int:gameplay_id>/submit",
-        GameplayViewset.as_view({"post": "submit_gameplay"}),
+        kym_views.GameplayViewset.as_view({"post": "submit_gameplay"}),
     ),
     path(
         "kym/question/<int:question_id>/submit",
-        QuestionViewSet.as_view({"post": "submit_answer"}),
+        kym_views.QuestionViewSet.as_view({"post": "submit_answer"}),
     ),
+    path("kym/metadata/<int:token_id>", kym_views.KYMTrophyMetadataView.as_view()),
 ]
