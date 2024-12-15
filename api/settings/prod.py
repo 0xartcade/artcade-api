@@ -19,7 +19,7 @@ DATABASES = {
 CORS_ALLOWED_ORIGINS = []
 CORS_ALLOWED_ORIGIN_REGEXES = [
     # artade projects - match subdomains + root domain
-    re.compile(r"^https://([\w-]+\.)?artcade\.xyz$"),
+    re.compile(r"^https://([\w-]+\.)?0xartcade\.xyz$"),
 ]
 
 # CSRF

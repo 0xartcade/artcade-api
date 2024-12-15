@@ -19,7 +19,7 @@ DATABASES = {
 CORS_ALLOWED_ORIGINS = []
 CORS_ALLOWED_ORIGIN_REGEXES = [
     # artade projects - match subdomains + root domain
-    re.compile(r"^https://([\w-]+\.)?artcade\.xyz$"),
+    re.compile(r"^https://([\w-]+\.)?0xartcade\.xyz$"),
     # Allow localhost with any port.
     re.compile(r"^http://localhost:\d+$"),
     # Allow vercel preview links but only for our app.
