@@ -42,10 +42,18 @@ KYM_MAX_QUESTIONS = 5
 KYM_QUESTION_DATA_URL = env("KYM_QUESTION_DATA_URL")
 KYM_NFT_NAME_PREFIX = "Know Your Memes Trophy"
 KYM_NFT_DESCRIPTION = "A little momento for your performance in Know Your Memes. Submit more scores on-chain to climb the leaderboard and continue to earn rewards."
-KYM_NFT_BASE_IMAGE_URL = "https://google.com"
-KYM_NFT_1ST_IMAGE_URL = "https://google.com"
-KYM_NFT_2ND_IMAGE_URL = "https://google.com"
-KYM_NFT_3RD_IMAGE_URL = "https://google.com"
+KYM_NFT_BASE_IMAGE_URL = (
+    "https://arweave.net/rdX45G4TCKggOkp9jGFyPJArWgx0n1Fa2-ZZYx-SNj8"
+)
+KYM_NFT_1ST_IMAGE_URL = (
+    "https://arweave.net/QrNFeEZFRycfV4ZPvSWUxkGN-iUjo71jEzJLtgTcyUU"
+)
+KYM_NFT_2ND_IMAGE_URL = (
+    "https://arweave.net/NBpT05URhBflG9KwjhVjJaBVN_lhfLdKo8sOa8KFvtA"
+)
+KYM_NFT_3RD_IMAGE_URL = (
+    "https://arweave.net/sToYRWOjZOO-qcC3cjJYxDlQz3LzvsDCAs8o7lzHa_k"
+)
 
 # Application definition
 INSTALLED_APPS = [
