@@ -1,4 +1,5 @@
 from datetime import timedelta
+from random import randint
 from secrets import token_hex
 
 from django.conf import settings
@@ -156,7 +157,7 @@ class GenerateOTPView(APIView):
         # generate otp for user
         otp = OTP.objects.create(
             user=request.user,
-            code=token_hex(3),
+            code="".join([str(randint(0, 9)) for _ in range(6)]),
             expires_at=now() + timedelta(minutes=5),
         )
 
