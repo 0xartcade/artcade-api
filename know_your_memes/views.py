@@ -148,7 +148,9 @@ class GameplayViewset(ViewSet):
 
 
 class QuestionViewSet(ViewSet):
-    @extend_schema(responses={200: RevealedQuestionSerializer})
+    @extend_schema(
+        request=SubmitAnswerSerializer, responses={200: RevealedQuestionSerializer}
+    )
     def submit_answer(self, request, question_id: int):
         """Endpoint to submit an answer for a question"""
         # get the user
