@@ -131,6 +131,8 @@ class SignScoresView(APIView):
 
 
 class DeleteScoresView(APIView):
+    """Endpoint to delete scores. Since scores can't be reused onchain, we don't have to rely on this to be executed for security reasons, but it's much easier than trying to index all scores used and delete from the db automatically."""
+
     @extend_schema(
         request=ScoreIdSerializer,
     )
