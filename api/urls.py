@@ -24,6 +24,7 @@ from drf_spectacular.views import (
 from knox.views import LogoutAllView, LogoutView
 
 from games.views import (
+    DeleteScoresView,
     GameViewSet,
     LeaderboardViewSet,
     PlayerHighScoreViewSet,
@@ -92,6 +93,7 @@ urlpatterns = [
     #
     path("scores", PlayerScoreViewSet.as_view({"get": "list"})),
     path("scores/sign", SignScoresView.as_view()),
+    path("scores/delete", DeleteScoresView.as_view()),
     #
     # Know Your Memes
     #

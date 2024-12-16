@@ -73,7 +73,6 @@ INSTALLED_APPS = [
     "rest_framework.authtoken",
     "knox",
     "django_structlog",
-    # "huey.contrib.djhuey",
     # our apps
     "users",
     "games",

@@ -68,7 +68,7 @@ class PlayerScoreSerializer(ModelSerializer):
     game = GameSerializer()
 
 
-class SignScoreSerializer(Serializer):
+class ScoreIdSerializer(Serializer):
     ids = ListField(child=IntegerField())
 
 
