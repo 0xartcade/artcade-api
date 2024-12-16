@@ -36,7 +36,7 @@ TICKET_DESCRIPTION = "A little reward for your participation and performance in 
 TICKET_IMAGE_URL = "https://arweave.net/EAaB6gq782CAk4IO_Jm9jKcDI1qB6b9cGm90aI_Ij7g"
 
 # Know Your Memes
-KYM_GAME_ADDRESS = ""
+KYM_GAME_ADDRESS = "0x6bD4A37Fc5753425fA566103a51Fd7355d940D48"
 KYM_GAME_DURATION = timedelta(seconds=30)
 KYM_MAX_QUESTIONS = 5
 KYM_QUESTION_DATA_URL = env("KYM_QUESTION_DATA_URL")

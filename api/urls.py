@@ -111,4 +111,8 @@ urlpatterns = [
         kym_views.QuestionViewSet.as_view({"post": "submit_answer"}),
     ),
     path("kym/metadata/<int:token_id>", kym_views.KYMTrophyMetadataView.as_view()),
+    path(
+        "kym/demo/submit",
+        kym_views.GameplayViewset.as_view({"post": "demo_score_submission"}),
+    ),
 ]
