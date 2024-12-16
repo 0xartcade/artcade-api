@@ -40,6 +40,7 @@ from users.views import (
     OTPLoginView,
     UserInfoView,
 )
+from webhooks.views import IndexPlayerHighScoreView
 
 from . import views as api_views
 
@@ -72,6 +73,10 @@ urlpatterns = [
     #
     path("games", GameViewSet.as_view({"get": "list"})),
     path("games/<int:pk>", GameViewSet.as_view({"get": "retrieve"})),
+    #
+    # Webhooks
+    #
+    path("games/index/player-high-score", IndexPlayerHighScoreView.as_view()),
     #
     # Ticket Metadata
     #

@@ -1,0 +1,42 @@
+{
+    "webhookId": "wh_6l5v7cnr8qidv5fe",
+    "id": "whevt_wu0em1hlbdlnnheo",
+    "createdAt": "2024-12-16T19:41:47.211Z",
+    "type": "GRAPHQL",
+    "event": {
+        "data": {
+            "block": {
+                "hash": "0xc726b598788c14820dc422a95cc328e7f56316f727e735b1bed7adcd29c9fe4b",
+                "number": 7720973,
+                "timestamp": 1734378106,
+                "logs": [
+                    {
+                        "data": "0x",
+                        "topics": [
+                            "0x324cb0062138d65997c86cd3012489ceb351d602f2f55c7408306e8040c79f3f",
+                            "0x000000000000000000000000181f59eb6490c8bf73d291af0d5a56dc90d7cd8b",
+                            "0x0000000000000000000000000000000000000000000000000000000000000002"
+                        ],
+                        "index": 1,
+                        "account": {
+                            "address": "0x6bd4a37fc5753425fa566103a51fd7355d940d48"
+                        },
+                        "transaction": {
+                            "hash": "0x927bd72c94aafde7d51da1df4846758d13f016d396ae5ad23e13838ce309b8fc",
+                            "from": {
+                                "address": "0x181f59eb6490c8bf73d291af0d5a56dc90d7cd8b"
+                            },
+                            "to": {
+                                "address": "0xca11bde05977b3631167028862be2a173976ca11"
+                            },
+                            "value": "0x5af3107a4000",
+                            "status": 1
+                        }
+                    }
+                ]
+            }
+        },
+        "sequenceNumber": "10000000006588185002",
+        "network": "SHAPE_SEPOLIA"
+    }
+}

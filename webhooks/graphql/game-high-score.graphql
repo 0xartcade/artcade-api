@@ -1,16 +1,14 @@
-"""
-Graphql for a custom alchemy webhook that watches all instances of game events being emitted
+# Graphql for a custom alchemy webhook that watches all instances of game events being emitted
 
-Events watched:
-event PlayerRegistered(address indexed player, uint256 indexed playerTokenId);
-event NewHighScore(address indexed player, uint256 indexed playerTokenId, uint256 indexed highScore);
-"""
+# Events watched:
+# event PlayerRegistered(address indexed player, uint256 indexed playerTokenId);
+# event NewHighScore(address indexed player, uint256 indexed playerTokenId, uint256 indexed highScore);
 {
   block {
     hash,
     number,
     timestamp,
-    logs(filter: {topics: ["0x324cb0062138d65997c86cd3012489ceb351d602f2f55c7408306e8040c79f3f","0xec51f1f19b3cb8ab4176d8a463cb3b7a4bb866380c5ee1c51da9577ad94db00a"]}) { 
+    logs(filter: {topics: [["0x324cb0062138d65997c86cd3012489ceb351d602f2f55c7408306e8040c79f3f","0xec51f1f19b3cb8ab4176d8a463cb3b7a4bb866380c5ee1c51da9577ad94db00a"]]}) { 
       data,
       topics,
       index,
