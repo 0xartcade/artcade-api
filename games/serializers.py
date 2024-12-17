@@ -12,7 +12,16 @@ from games.models import Game, PlayerHighScore, PlayerScore
 class GameSerializer(ModelSerializer):
     class Meta:
         model = Game
-        fields = "__all__"
+        fields = [
+            "id",
+            "name",
+            "description",
+            "eth_address",
+            "url",
+            "nft_address",
+            "created_at",
+            "updated_at",
+        ]
 
 
 class LeaderboardSerializer(ModelSerializer):
@@ -59,7 +68,7 @@ class PlayerScoreSerializer(ModelSerializer):
     game = GameSerializer()
 
 
-class SignScoreSerializer(Serializer):
+class ScoreIdSerializer(Serializer):
     ids = ListField(child=IntegerField())
 
 

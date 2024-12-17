@@ -21,3 +21,10 @@ repos:
         language: system
         types: [python]
         pass_filenames: false
+
+      - id: export-requirements
+        name: export
+        entry: poetry export -o requirements.txt --without-hashes
+        language: system
+        types: []
+        pass_filenames: false

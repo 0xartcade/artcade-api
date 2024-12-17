@@ -24,14 +24,23 @@ from drf_spectacular.views import (
 from knox.views import LogoutAllView, LogoutView
 
 from games.views import (
+    DeleteScoresView,
     GameViewSet,
     LeaderboardViewSet,
     PlayerHighScoreViewSet,
     PlayerScoreViewSet,
     SignScoresView,
+    TicketMetadataView,
 )
-from know_your_memes.views import GameplayViewset, QuestionViewSet
-from users.views import GenerateTokenView, LoginView, NonceView
+from know_your_memes import views as kym_views
+from users.views import (
+    GenerateOTPView,
+    LoginView,
+    NonceView,
+    OTPLoginView,
+    UserInfoView,
+)
+from webhooks.views import IndexPlayerHighScoreView
 
 from . import views as api_views
 
@@ -54,14 +63,24 @@ urlpatterns = [
     #
     path("auth/nonce", NonceView.as_view()),
     path("auth/login", LoginView.as_view()),
-    path("auth/generate-token", GenerateTokenView.as_view()),
+    path("auth/generate-otp", GenerateOTPView.as_view()),
+    path("auth/login/otp", OTPLoginView.as_view()),
     path("auth/logout", LogoutView.as_view()),
     path("auth/logout-all", LogoutAllView.as_view()),
+    path("auth/user-info", UserInfoView.as_view()),
     #
     # Games
     #
     path("games", GameViewSet.as_view({"get": "list"})),
     path("games/<int:pk>", GameViewSet.as_view({"get": "retrieve"})),
+    #
+    # Webhooks
+    #
+    path("games/index/player-high-score", IndexPlayerHighScoreView.as_view()),
+    #
+    # Ticket Metadata
+    #
+    path("ticket/metadata", TicketMetadataView.as_view()),
     #
     # Leaderboard
     #
@@ -79,20 +98,28 @@ urlpatterns = [
     #
     path("scores", PlayerScoreViewSet.as_view({"get": "list"})),
     path("scores/sign", SignScoresView.as_view()),
+    path("scores/delete", DeleteScoresView.as_view()),
     #
     # Know Your Memes
     #
-    path("kym/gameplay", GameplayViewset.as_view({"post": "create_gameplay"})),
+    path(
+        "kym/gameplay", kym_views.GameplayViewset.as_view({"post": "create_gameplay"})
+    ),
     path(
         "kym/gameplay/<int:gameplay_id>/question",
-        GameplayViewset.as_view({"post": "create_question"}),
+        kym_views.GameplayViewset.as_view({"post": "create_question"}),
     ),
     path(
         "kym/gameplay/<int:gameplay_id>/submit",
-        GameplayViewset.as_view({"post": "submit_gameplay"}),
+        kym_views.GameplayViewset.as_view({"post": "submit_gameplay"}),
     ),
     path(
         "kym/question/<int:question_id>/submit",
-        QuestionViewSet.as_view({"post": "submit_answer"}),
+        kym_views.QuestionViewSet.as_view({"post": "submit_answer"}),
+    ),
+    path("kym/metadata/<int:token_id>", kym_views.KYMTrophyMetadataView.as_view()),
+    path(
+        "kym/demo/submit",
+        kym_views.GameplayViewset.as_view({"post": "demo_score_submission"}),
     ),
 ]

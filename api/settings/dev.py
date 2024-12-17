@@ -1,4 +1,4 @@
-import re
+# import re
 
 import dj_database_url
 
@@ -16,12 +16,23 @@ DATABASES = {
 }
 
 # CORS
-CORS_ALLOWED_ORIGINS = []
-CORS_ALLOWED_ORIGIN_REGEXES = [
-    # Allow localhost with any port.
-    re.compile(r"^http://localhost:\d+$"),
-    # Allow vercel preview links but only for our app.
-    re.compile(r"^https://([\w-]+)-artcade.vercel\.app$"),
+CORS_ALLOW_ALL_ORIGINS = True
+# CORS_ALLOWED_ORIGINS = []
+# CORS_ALLOWED_ORIGIN_REGEXES = [
+#     # artade projects - match subdomains + root domain
+#     re.compile(r"^https://([\w-]+\.)?0xartcade\.xyz$"),
+#     # Allow localhost with any port.
+#     re.compile(r"^http://localhost:\d+$"),
+#     # Allow vercel preview links but only for our app.
+#     re.compile(r"^https://([\w-]+)-artcade.vercel\.app$"),
+# ]
+
+# CSRF
+CSRF_TRUSTED_ORIGINS = [
+    "https://*.0xartcade.xyz",
+    "https://*.vercel.app",
+    *[f"http://localhost:{port}" for port in range(3000, 3010)],
+    *[f"http://localhost.local:{port}" for port in range(3000, 3010)],
 ]
 
 # Allow django to detect if request was made via https.

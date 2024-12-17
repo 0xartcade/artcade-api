@@ -31,12 +31,29 @@ ALLOWED_HOSTS = env.list("ALLOWED_HOSTS")
 NONCE_LENGTH = 16
 NONCE_EXPIRATION = timedelta(minutes=15)
 APP_CHAIN_ID = 11011
+TICKET_NAME = "Reward Ticket"
+TICKET_DESCRIPTION = "A little reward for your participation and performance in the 0xArcade. Stuff your pockets with enough of these and you might just unlock some epic rewards. 👀"
+TICKET_IMAGE_URL = "https://arweave.net/EAaB6gq782CAk4IO_Jm9jKcDI1qB6b9cGm90aI_Ij7g"
 
 # Know Your Memes
-KYM_GAME_ADDRESS = ""
+KYM_GAME_ADDRESS = "0x6bD4A37Fc5753425fA566103a51Fd7355d940D48"
 KYM_GAME_DURATION = timedelta(seconds=30)
 KYM_MAX_QUESTIONS = 5
 KYM_QUESTION_DATA_URL = env("KYM_QUESTION_DATA_URL")
+KYM_NFT_NAME_PREFIX = "Know Your Memes Trophy"
+KYM_NFT_DESCRIPTION = "A little momento for your performance in Know Your Memes. Submit more scores on-chain to climb the leaderboard and continue to earn rewards."
+KYM_NFT_BASE_IMAGE_URL = (
+    "https://arweave.net/rdX45G4TCKggOkp9jGFyPJArWgx0n1Fa2-ZZYx-SNj8"
+)
+KYM_NFT_1ST_IMAGE_URL = (
+    "https://arweave.net/QrNFeEZFRycfV4ZPvSWUxkGN-iUjo71jEzJLtgTcyUU"
+)
+KYM_NFT_2ND_IMAGE_URL = (
+    "https://arweave.net/NBpT05URhBflG9KwjhVjJaBVN_lhfLdKo8sOa8KFvtA"
+)
+KYM_NFT_3RD_IMAGE_URL = (
+    "https://arweave.net/sToYRWOjZOO-qcC3cjJYxDlQz3LzvsDCAs8o7lzHa_k"
+)
 
 # Application definition
 INSTALLED_APPS = [
@@ -56,7 +73,6 @@ INSTALLED_APPS = [
     "rest_framework.authtoken",
     "knox",
     "django_structlog",
-    # "huey.contrib.djhuey",
     # our apps
     "users",
     "games",
@@ -68,6 +84,7 @@ INSTALLED_APPS = [
 AUTH_USER_MODEL = "users.User"
 
 MIDDLEWARE = [
+    "api.middleware.HealthCheckMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
@@ -223,11 +240,13 @@ REST_KNOX = {
     "AUTO_REFRESH": True,
     "AUTO_REFRESH_TTL": timedelta(days=7),  # refresh if login within 7 days
 }
-AUTH_COOKIE_NAME = "artcade_auth_cookie"
+AUTH_COOKIE_NAME = "artcade_auth_cookie_dev"
 
 # CSRF
+CSRF_TRUSTED_ORIGINS = []  # overwrite in specific envs
 CSRF_COOKIE_SAMESITE = "None"
 CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_DOMAIN = ".0xartcade.xyz"
 CSRF_HEADER_KEY = "X-CSRFToken"
 CSRF_RET_HEADER_NAME = "X-CSRF-TOKEN"
 

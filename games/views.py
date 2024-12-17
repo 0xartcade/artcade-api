@@ -1,5 +1,6 @@
 from hashlib import sha256
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.http import Http404
 from drf_spectacular.utils import OpenApiResponse, extend_schema
@@ -18,9 +19,10 @@ from games.serializers import (
     LeaderboardSerializer,
     PlayerHighScoreSerializer,
     PlayerScoreSerializer,
+    ScoreIdSerializer,
     SignedScoreSerializer,
-    SignScoreSerializer,
 )
+from utils.rest_framework.serializers import MetadataSerializer
 
 User = get_user_model()
 
@@ -81,14 +83,14 @@ class PlayerScoreViewSet(GenericViewSet, ListModelMixin):
 
 class SignScoresView(APIView):
     @extend_schema(
-        request=SignScoreSerializer,
+        request=ScoreIdSerializer,
         responses={200: OpenApiResponse(SignedScoreSerializer(many=True))},
     )
     def post(self, request):
-        """Action to sign scores desired by the player"""
+        """Endpoint to sign scores desired by the player"""
 
         # serialize data
-        serializer = SignScoreSerializer(data=request.data)
+        serializer = ScoreIdSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         # get scores
@@ -126,3 +128,51 @@ class SignScoresView(APIView):
         ret_serializer = SignedScoreSerializer(data=score_data, many=True)
         ret_serializer.is_valid()
         return Response(data=ret_serializer.data)
+
+
+class DeleteScoresView(APIView):
+    """Endpoint to delete scores. Since scores can't be reused onchain, we don't have to rely on this to be executed for security reasons, but it's much easier than trying to index all scores used and delete from the db automatically."""
+
+    @extend_schema(
+        request=ScoreIdSerializer,
+    )
+    def delete(self, request):
+        # serialize data
+        serializer = ScoreIdSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        # get scores
+        scores = PlayerScore.objects.filter(
+            user=request.user, id__in=serializer.validated_data["ids"]
+        )
+        if len(scores) != len(serializer.validated_data["ids"]):
+            raise ValidationError(
+                detail="All scores do not belong to the logged in user",
+                code="invalid_scores",
+            )
+
+        # delete scores
+        scores.delete()
+
+        return Response()
+
+
+class TicketMetadataView(APIView):
+    """View to get ticket metadata for the ticket NFT, publically available"""
+
+    authentication_classes = []
+    permission_classes = [AllowAny]
+
+    @extend_schema(
+        responses={200: OpenApiResponse(MetadataSerializer)},
+    )
+    def get(self, request):
+        metadata = {
+            "name": settings.TICKET_NAME,
+            "description": settings.TICKET_DESCRIPTION,
+            "image": settings.TICKET_IMAGE_URL,
+        }
+
+        serializer = MetadataSerializer(data=metadata)
+        serializer.is_valid()
+        return Response(data=serializer.data)

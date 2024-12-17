@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 import pytest
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -7,7 +9,7 @@ from eth_account.messages import encode_defunct
 from rest_framework import status
 from siwe import SiweMessage
 
-from users.models import Nonce
+from users.models import OTP, Nonce
 
 User = get_user_model()
 
@@ -136,136 +138,59 @@ def test_logout(auth_client):
     )
 
 
-# test generating a new token for a user, using header (built into auth_client)
-def test_generate_token(auth_client):
-    generate_token_response = auth_client.post("/auth/generate-token")
-    assert (
-        generate_token_response.status_code == status.HTTP_200_OK
-        and len(generate_token_response.data["token"]) > 0
-        and generate_token_response.data["token"]
-        != auth_client.defaults["HTTP_AUTHORIZATION"].split(" ")[1]
-        and len(
-            User.objects.get(eth_address=auth_client.eth_address).auth_token_set.all()
-        )
-        == 2
-    )
+# test generating an OTP
+def test_generate_otp(auth_client):
+    r = auth_client.post("/auth/generate-otp")
+    assert r.status_code == status.HTTP_200_OK and len(r.data["code"]) == 6
 
 
-def test_generate_token_cookie(api_client):
-    # create user address and ensure no users
-    account = Account.create()
+def test_login_with_otp(auth_client, api_client):
+    r = auth_client.post("/auth/generate-otp")
+    code = r.data["code"]
 
-    # create user in the backend
-    nonce_response = api_client.get(
-        "/auth/nonce",
-    )
-    message = SiweMessage(
-        domain="artcade.xyz",
-        address=account.address,
-        uri="https://artcade.xyz",
-        statement="Sign in to access Artcade",
-        chain_id=360,
-        version="1",
-        issued_at=timezone.now().isoformat(),
-        nonce=nonce_response.data["value"],
-    )
-    signature = account.sign_message(
-        encode_defunct(text=message.prepare_message())
-    ).signature.hex()
-
-    login_response = api_client.post(
-        "/auth/login",
-        {"message": message.prepare_message(), "signature": signature},
-    )
-
-    csrf_token = login_response.headers[settings.CSRF_RET_HEADER_NAME]
-
-    # try generating token with cookie
-    generate_token_response = api_client.post(
-        "/auth/generate-token", headers={settings.CSRF_HEADER_KEY: csrf_token}
-    )
+    r = api_client.post("/auth/login/otp", data={"code": code})
 
     assert (
-        generate_token_response.status_code == status.HTTP_200_OK
-        and len(generate_token_response.data["token"]) > 0
-        and generate_token_response.data["token"]
-        != api_client.cookies[settings.AUTH_COOKIE_NAME].value
-        and len(
-            User.objects.get(eth_address=account.address.lower()).auth_token_set.all()
-        )
-        == 2
+        r.status_code == 200
+        and len(r.data["token"]) > 0
+        and r.data["user"]["eth_address"] == auth_client.eth_address
+        and OTP.objects.count() == 0
     )
 
 
-def test_generate_token_cookie_no_csrf(api_client):
-    # create user address and ensure no users
-    account = Account.create()
+def test_otp_login_nonexistent_otp(auth_client, api_client):
+    r = auth_client.post("/auth/generate-otp")
+    code = r.data["code"]
 
-    # create user in the backend
-    nonce_response = api_client.get(
-        "/auth/nonce",
+    OTP.objects.get(code=code).delete()
+
+    r = api_client.post("/auth/login/otp", data={"code": code})
+
+    assert r.status_code == 400 and r.data["code"] == "otp_invalid"
+
+
+def test_otp_login_expired_otp(auth_client, api_client):
+    r = auth_client.post("/auth/generate-otp")
+    code = r.data["code"]
+
+    otp = OTP.objects.get(code=code)
+    otp.expires_at = timezone.now() - timedelta(minutes=5)
+    otp.save()
+
+    r = api_client.post("/auth/login/otp", data={"code": code})
+
+    assert r.status_code == 400 and r.data["code"] == "otp_expired"
+
+
+def test_get_user_info_not_logged_in(api_client):
+    r = api_client.get("/auth/user-info")
+    assert r.status_code == status.HTTP_401_UNAUTHORIZED
+
+
+def test_get_user_info_logged_in(auth_client):
+    r = auth_client.get("/auth/user-info")
+    assert (
+        r.status_code == status.HTTP_200_OK
+        and r.data["eth_address"] == auth_client.eth_address
+        and len(r.headers[settings.CSRF_RET_HEADER_NAME]) > 0
     )
-    message = SiweMessage(
-        domain="artcade.xyz",
-        address=account.address,
-        uri="https://artcade.xyz",
-        statement="Sign in to access Artcade",
-        chain_id=360,
-        version="1",
-        issued_at=timezone.now().isoformat(),
-        nonce=nonce_response.data["value"],
-    )
-    signature = account.sign_message(
-        encode_defunct(text=message.prepare_message())
-    ).signature.hex()
-
-    api_client.post(
-        "/auth/login",
-        {"message": message.prepare_message(), "signature": signature},
-    )
-
-    # try generating token with cookie
-    generate_token_response = api_client.post("/auth/generate-token")
-
-    assert generate_token_response.status_code == status.HTTP_403_FORBIDDEN
-
-
-def test_generate_token_cookie_csrf_mistmatch(api_client):
-    # create user address and ensure no users
-    account = Account.create()
-
-    # create user in the backend
-    nonce_response = api_client.get(
-        "/auth/nonce",
-    )
-    message = SiweMessage(
-        domain="artcade.xyz",
-        address=account.address,
-        uri="https://artcade.xyz",
-        statement="Sign in to access Artcade",
-        chain_id=360,
-        version="1",
-        issued_at=timezone.now().isoformat(),
-        nonce=nonce_response.data["value"],
-    )
-    signature = account.sign_message(
-        encode_defunct(text=message.prepare_message())
-    ).signature.hex()
-
-    api_client.post(
-        "/auth/login",
-        {"message": message.prepare_message(), "signature": signature},
-    )
-
-    # try generating token with cookie
-    generate_token_response = api_client.post(
-        "/auth/generate-token", headers={settings.CSRF_HEADER_KEY: "invalid"}
-    )
-
-    assert generate_token_response.status_code == status.HTTP_403_FORBIDDEN
-
-
-# test that someone not logged in can access token generation
-def test_generate_token_not_logged_in(api_client):
-    generate_token_response = api_client.post("/auth/generate-token")
-    assert generate_token_response.status_code == status.HTTP_401_UNAUTHORIZED

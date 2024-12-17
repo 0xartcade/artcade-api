@@ -29,9 +29,6 @@ stop-infra:
 run-server:
 	poetry run gunicorn api.wsgi -k gevent --bind :8000 --reload
 
-run-huey:
-	poetry run manage.py run_huey
-
 #####################################
 ### TESTING
 #####################################

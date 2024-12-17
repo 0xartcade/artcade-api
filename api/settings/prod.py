@@ -18,12 +18,13 @@ DATABASES = {
 # CORS
 CORS_ALLOWED_ORIGINS = []
 CORS_ALLOWED_ORIGIN_REGEXES = [
-    # Allow localhost with any port.
-    re.compile(r"^http://localhost:\d+$"),
-    # Allow vercel preview links but only for our app.
-    re.compile(r"^https://([\w-]+)-artcade.vercel\.app$"),
     # artade projects - match subdomains + root domain
-    re.compile(r"^https://([\w-]+\.)?artcade\.xyz$"),
+    re.compile(r"^https://([\w-]+\.)?0xartcade\.xyz$"),
+]
+
+# CSRF
+CSRF_TRUSTED_ORIGINS = [
+    "https://*.0xartcade.xyz",
 ]
 
 # Allow django to detect if request was made via https.
@@ -38,3 +39,6 @@ APP_CHAIN_ID = 360
 KYM_GAME_ADDRESS = ""
 KYM_GAME_DURATION = timedelta(seconds=30)  # noqa
 KYM_MAX_QUESTIONS = 5
+
+# AUTH
+AUTH_COOKIE_NAME = "artcade_auth_cookie"

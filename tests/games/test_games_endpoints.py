@@ -1,9 +1,11 @@
 from hashlib import sha256
 
 import pytest
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from hexbytes import HexBytes
 
+from games.models import PlayerScore
 from tests.factories import GameFactory, PlayerHighScoreFactory, PlayerScoreFactory
 
 pytestmark = [pytest.mark.django_db(transaction=True)]
@@ -155,4 +157,34 @@ def test_get_signed_scores(num, auth_client):
             and len(data["signature"]) == 65 * 2 + 2
             for data, score in zip(response.data, player_scores)
         ]
+    )
+
+
+@pytest.mark.parametrize(
+    "num",
+    [1, 10, 100],
+)
+def test_delete_signed_scores(num, auth_client):
+    user = User.objects.get(eth_address__iexact=auth_client.eth_address)
+    player_scores = PlayerScoreFactory.create_batch(num, user=user)
+
+    assert PlayerScore.objects.filter(user=user).count() == num
+
+    response = auth_client.delete(
+        "/scores/delete", data={"ids": [score.id for score in player_scores]}
+    )
+
+    assert (
+        response.status_code == 200
+        and PlayerScore.objects.filter(user=user).count() == 0
+    )
+
+
+def test_get_ticket_metadata(api_client):
+    response = api_client.get("/ticket/metadata")
+    assert (
+        response.status_code == 200
+        and response.data["name"] == settings.TICKET_NAME
+        and response.data["description"] == settings.TICKET_DESCRIPTION
+        and response.data["image"] == settings.TICKET_IMAGE_URL
     )

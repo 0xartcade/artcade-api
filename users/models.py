@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
@@ -27,3 +28,12 @@ class User(AbstractUser):
 class Nonce(models.Model):
     value = models.CharField(max_length=32, unique=True)
     expires_at = models.DateTimeField()
+
+
+class OTP(models.Model):
+    """One time password model, used for linking mobile PWA to user for gameplay"""
+
+    code = models.CharField(max_length=6, unique=True)
+    expires_at = models.DateTimeField()
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
