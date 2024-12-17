@@ -1,5 +1,5 @@
 # 0xArtcade API
-API powering some of the 0xArtcade games
+API powering the main 0xArtcade games
 
 ## Getting Started
 1. Install [poetry](https://python-poetry.org/)
@@ -20,6 +20,12 @@ I believe Sun Tzu said this about API frameworks their critically aclaimed book,
 > API frameworks should be boring so that you can build cool things with them easily
 
 ## Infrastructure Setup
-
 - Server for handling API requests
-- Background workers handling async tasks and cron jobs for recurring jobs
+- Background workers handling async tasks and cron jobs for recurring jobs (to come later)
+- Postgres db
+
+## User Authentication
+Currently, the backend is setup to create user profiles based on a web3 sign in standard (Sign In With Ethereum). Users then can link their mobile phone to their account using one-time passcodes (OTP). In the future, we plan to enable users to sign in via email by using a similar OTP strategy. As part of onboarding an email-based user, we will guide them to creating a wallet either through Coinbase Smart Wallet (wen?) or another method of adding account abstraction. To start, we are focused on web3 cryptoart users, but acknowledge that we must broaden the user base in the future.
+
+## Data Indexing
+We utilize Alchemy webhooks for our data indexing. This is a robust method of getting notified of onchain events. We then process each event as it comes in from the webhook. As we don't have to fetch data from anywhere but what is passed through the custom graphql webhook, we have no need to setup a background pipeline process. In the future, if that is needed, we can set that up.
