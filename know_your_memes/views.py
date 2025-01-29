@@ -87,9 +87,9 @@ class GameplayViewset(ViewSet):
             ),
         ]
         season_options = [
-            random_question["questions"]["season"],
+            int(random_question["questions"]["season"]),
             *random.choices(
-                list(set(SEASONS) - {random_question["questions"]["season"]}), k=3
+                list(set(SEASONS) - {int(random_question["questions"]["season"])}), k=3
             ),
         ]
 
@@ -109,7 +109,7 @@ class GameplayViewset(ViewSet):
             title=random_question["questions"]["title"],
             artist=random_question["questions"]["artist"],
             supply=random_question["questions"]["supply"],
-            season=random_question["questions"]["season"],
+            season=int(random_question["questions"]["season"]),
             title_options=title_options,
             artist_options=artist_options,
             supply_options=supply_options,
