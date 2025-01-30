@@ -13,7 +13,6 @@ from games.models import Game, PlayerHighScore, PlayerScore
 from know_your_memes.models import Gameplay, Question
 from know_your_memes.questions import ARTISTS, QUESTIONS, SEASONS, SUPPLIES, TITLES
 from know_your_memes.serializers import (
-    DemoScoreSubmissionSerializer,
     GameplayResultsSerializer,
     GameplaySerializer,
     QuestionSerializer,
@@ -146,24 +145,6 @@ class GameplayViewset(ViewSet):
 
         # return success
         return Response(data=GameplayResultsSerializer(gameplay).data)
-
-    @extend_schema(request=DemoScoreSubmissionSerializer, deprecated=True)
-    def demo_score_submission(self, request):
-        """Demo endpoint to submit a score. Should not be used in production. In fact, will return a 404 if in production."""
-        if settings.ENV_NAME == "prod":
-            raise Http404()
-
-        # serialize data
-        serializer = DemoScoreSubmissionSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        # save score for user
-        game = Game.objects.get(eth_address__iexact=settings.KYM_GAME_ADDRESS)
-        PlayerScore.objects.create(
-            game=game, user=request.user, score=serializer.validated_data["score"]
-        )
-
-        return Response()
 
 
 class QuestionViewSet(ViewSet):

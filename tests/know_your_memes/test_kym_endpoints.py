@@ -191,16 +191,3 @@ def test_kym_metadata(api_client):
         and response.data["attributes"][0]["trait_type"] == "Score"
         and response.data["attributes"][0]["value"] == str(sorted_scores[3].score)
     )
-
-
-# test demo score submission
-def test_demo_score_submission(auth_client):
-    GameFactory(eth_address=settings.KYM_GAME_ADDRESS)
-
-    r = auth_client.post("/kym/demo/submit", data={"score": 100})
-
-    assert r.status_code == 200
-
-    r = auth_client.get("/scores")
-
-    assert r.data["results"][0]["score"] == 100
