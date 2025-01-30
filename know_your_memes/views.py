@@ -69,25 +69,25 @@ class GameplayViewset(ViewSet):
         # create options
         title_options = [
             random_question["questions"]["title"],
-            *random.choices(
+            *random.sample(
                 list(set(TITLES) - {random_question["questions"]["title"]}), k=3
             ),
         ]
         artist_options = [
             random_question["questions"]["artist"],
-            *random.choices(
+            *random.sample(
                 list(set(ARTISTS) - {random_question["questions"]["artist"]}), k=3
             ),
         ]
         supply_options = [
             random_question["questions"]["supply"],
-            *random.choices(
+            *random.sample(
                 list(set(SUPPLIES) - {random_question["questions"]["supply"]}), k=3
             ),
         ]
         season_options = [
             int(random_question["questions"]["season"]),
-            *random.choices(
+            *random.sample(
                 list(set(SEASONS) - {int(random_question["questions"]["season"])}), k=3
             ),
         ]
