@@ -17,7 +17,7 @@ class Game(models.Model):
         unique=True,
         validators=[eth_address_validator],
     )
-    url = models.URLField()
+    url = models.TextField()
     nft_address = models.CharField(
         max_length=42,
         unique=True,

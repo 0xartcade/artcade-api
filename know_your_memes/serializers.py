@@ -14,10 +14,6 @@ class GameplaySerializer(ModelSerializer):
         fields = ["id"]
 
 
-class DemoScoreSubmissionSerializer(Serializer):
-    score = IntegerField()
-
-
 class QuestionSerializer(ModelSerializer):
     class Meta:
         model = Question

@@ -13,7 +13,6 @@ from games.models import Game, PlayerHighScore, PlayerScore
 from know_your_memes.models import Gameplay, Question
 from know_your_memes.questions import ARTISTS, QUESTIONS, SEASONS, SUPPLIES, TITLES
 from know_your_memes.serializers import (
-    DemoScoreSubmissionSerializer,
     GameplayResultsSerializer,
     GameplaySerializer,
     QuestionSerializer,
@@ -70,26 +69,26 @@ class GameplayViewset(ViewSet):
         # create options
         title_options = [
             random_question["questions"]["title"],
-            *random.choices(
+            *random.sample(
                 list(set(TITLES) - {random_question["questions"]["title"]}), k=3
             ),
         ]
         artist_options = [
             random_question["questions"]["artist"],
-            *random.choices(
+            *random.sample(
                 list(set(ARTISTS) - {random_question["questions"]["artist"]}), k=3
             ),
         ]
         supply_options = [
             random_question["questions"]["supply"],
-            *random.choices(
+            *random.sample(
                 list(set(SUPPLIES) - {random_question["questions"]["supply"]}), k=3
             ),
         ]
         season_options = [
-            random_question["questions"]["season"],
-            *random.choices(
-                list(set(SEASONS) - {random_question["questions"]["season"]}), k=3
+            int(random_question["questions"]["season"]),
+            *random.sample(
+                list(set(SEASONS) - {int(random_question["questions"]["season"])}), k=3
             ),
         ]
 
@@ -109,7 +108,7 @@ class GameplayViewset(ViewSet):
             title=random_question["questions"]["title"],
             artist=random_question["questions"]["artist"],
             supply=random_question["questions"]["supply"],
-            season=random_question["questions"]["season"],
+            season=int(random_question["questions"]["season"]),
             title_options=title_options,
             artist_options=artist_options,
             supply_options=supply_options,
@@ -146,24 +145,6 @@ class GameplayViewset(ViewSet):
 
         # return success
         return Response(data=GameplayResultsSerializer(gameplay).data)
-
-    @extend_schema(request=DemoScoreSubmissionSerializer, deprecated=True)
-    def demo_score_submission(self, request):
-        """Demo endpoint to submit a score. Should not be used in production. In fact, will return a 404 if in production."""
-        if settings.ENV_NAME == "prod":
-            raise Http404()
-
-        # serialize data
-        serializer = DemoScoreSubmissionSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        # save score for user
-        game = Game.objects.get(eth_address__iexact=settings.KYM_GAME_ADDRESS)
-        PlayerScore.objects.create(
-            game=game, user=request.user, score=serializer.validated_data["score"]
-        )
-
-        return Response()
 
 
 class QuestionViewSet(ViewSet):
