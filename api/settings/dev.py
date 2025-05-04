@@ -15,6 +15,10 @@ DATABASES = {
     ),
 }
 
+# Override log level
+LOGGING["root"]["level"] = logging.WARNING  # noqa
+LOGGING["loggers"]["django_structlog"]["level"] = logging.WARNING  # noqa
+
 # CORS
 CORS_ALLOW_ALL_ORIGINS = True
 # CORS_ALLOWED_ORIGINS = []
