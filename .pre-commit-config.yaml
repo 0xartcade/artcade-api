@@ -3,21 +3,21 @@ repos:
     hooks:
       - id: migrations-check
         name: migrations-check
-        entry: poetry run python manage.py makemigrations --check
+        entry: uv run python manage.py makemigrations --check
         language: system
         types: []
         pass_filenames: false
 
       - id: format
         name: format
-        entry: poetry run ruff format .
+        entry: uv run ruff format .
         language: system
         types: [python]
         pass_filenames: false
 
       - id: lint
         name: lint
-        entry: poetry run ruff check --fix .
+        entry: uv run ruff check --fix .
         language: system
         types: [python]
         pass_filenames: false
